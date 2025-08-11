@@ -19,8 +19,9 @@ class hms_data_handler:
         rolling_days = [self.start_date - dt.timedelta(days = x) for x in range(self.date_delta)]
         state_data = self.__open_zipped_data__("https://www2.census.gov/geo/tiger/TIGER2024/STATE/tl_2024_us_state.zip").to_crs("EPSG:4326").dissolve()
         self.smoke_url_list = [[x,f"https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/Shapefile/{x.strftime('%Y')}/{x.strftime('%m')}/hms_smoke{x.strftime('%Y%m%d')}.zip"] for x  in rolling_days]
-        self.smoke_data =  [[x[0],self.__open_zipped_data__(x[1]).to_crs("EPSG:4326").clip(state_data).dissolve(by=['Density'])] for x in self.smoke_url_list]
-    
+        smoke_data_raw =  [[x[0], self.__open_zipped_data__(x[1]).to_crs("EPSG:4326").clip(state_data).dissolve(by=['Density'], as_index=False)] for x in self.smoke_url_list]
+        self.smoke_data = [[x[0], x[1].assign(style=x[1].apply(self.smoke_style_row, axis=1))] for x in smoke_data_raw]        
+   
     @staticmethod
     def __open_zipped_data__(url) -> gpd.GeoDataFrame:
         """
@@ -40,3 +41,14 @@ class hms_data_handler:
                             downloaded_data = gpd.read_file(file_location).to_crs("EPSG:4326")
                         
         return downloaded_data
+ 
+    @staticmethod
+    def smoke_style_row(row):
+        if row['Density'] == 'Light':
+            return {'fillColor': "#b5b5b5", 'weight': 1, "color": '#b5b5b5'}
+        elif row['Density'] == 'Medium':
+            return {'fillColor': '#6b6b6b', 'weight': 1, "color": '#6b6b6b'}
+        elif row['Density'] == 'Heavy':
+            return {'fillColor': '#AC0000', 'weight': 1, "color": '#AC0000'}
+        else:
+            return {'fillColor': "#0201015A", 'weight': 1, "color": '#0201015A'}
