@@ -1,0 +1,9 @@
+geopandas >= 1.1.1
+folium >= 0.20.0
+ipykernel
+pyspark
+sqlalchemy
+matplotlib
+fastapi
+uvicorn
+apache-airflow
