@@ -4,7 +4,6 @@ import tempfile as tmp
 import datetime as dt
 import os
 
-
 from zipfile import ZipFile
 from dataclasses import dataclass
 
@@ -28,7 +27,7 @@ class HmsDataHandler:
                 "https://www2.census.gov/geo/tiger/TIGER2024/STATE/tl_2024_us_state.zip"
             ).to_crs("EPSG:4326").dissolve()
         )
-        
+             
         self.smoke_url_list = [
             [
                 x,
@@ -45,7 +44,7 @@ class HmsDataHandler:
         ]
 
     @staticmethod
-    def __open_zipped_data__(url) -> gpd.GeoDataFrame:
+    def __open_zipped_data__(url):
         """
         Args:
             data (list of tuples): Each tuple contains state, county, and URL to the zipped data.
